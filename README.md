@@ -1,4 +1,4 @@
-# Flexcellent - Yoga Pose Corrector Application
+# Flexcellent - A Yoga Pose Corrector Application
 
 ## Overview
 
