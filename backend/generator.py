@@ -3,7 +3,9 @@ import cv2 as cv
 import mediapipe as mp
 import numpy as np
 import time
-import PoseModule as pm
+from . import PoseModule as pm
+from .pose_equal_check import PoseSimilarity
+
 # Initialize MediaPipe Pose Detection
 detector = pm.PoseDetector()
 mp_pose = mp.solutions.pose

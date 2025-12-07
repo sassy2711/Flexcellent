@@ -3,13 +3,13 @@ import cv2 as cv
 import mediapipe as mp
 import numpy as np
 import time
-import PoseModule as pm
-# Initialize MediaPipe Pose Detection
-import ideal_landmarks_data
-import absolutely_ideal_landmarks_data
+from . import PoseModule as pm
+from .ideal_landmarks_data import ideal_landmarks as ideal_landmarks_data
+from .absolutely_ideal_landmarks_data import absolutely_ideal_landmarks as absolutely_ideal_landmarks_data
 
-ideal_landmarks = ideal_landmarks_data.ideal_landmarks
-absolutely_ideal_landmarks = absolutely_ideal_landmarks_data.absolutely_ideal_landmarks
+
+ideal_landmarks = ideal_landmarks_data
+absolutely_ideal_landmarks = absolutely_ideal_landmarks_data
 detector = pm.PoseDetector()
 mp_pose = mp.solutions.pose
 pose = mp_pose.Pose()
