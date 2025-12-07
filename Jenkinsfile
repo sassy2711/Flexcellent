@@ -9,7 +9,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                // Uses the repo configured in the job
+                // Uses the repo configured in the jo
                 checkout scm
             }
         }
