@@ -562,7 +562,7 @@ def main():
 
                 payload = {
                     "pose_name": pose_name,
-                    "frame_b64": img_b64,  # ✅ matches backend api.py
+                    "frame_b64": img_b64,  # matches backend api.py
                 }
 
                 try:
