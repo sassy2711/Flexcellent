@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: flexcellent-worker-svc
+spec:
+  selector:
+    app: flexcellent-worker
+  type: NodePort
+  ports:
+    - name: http
+      port: 5000       # service port
+      targetPort: 5000 # container port
+      nodePort: 30080  # external NodePort (optional explicit)

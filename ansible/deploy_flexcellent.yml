@@ -1,0 +1,27 @@
+---
+- name: Deploy Flexcellent backend to Kubernetes
+  hosts: local
+  gather_facts: false
+
+  vars:
+    repo_root: "{{ playbook_dir | dirname }}"
+
+  tasks:
+    - name: Show current kubectl context (for logging)
+      ansible.builtin.command: kubectl config current-context
+      register: kubectx
+      changed_when: false
+
+    - name: Print kubectl context
+      ansible.builtin.debug:
+        msg: "Using kubectl context: {{ kubectx.stdout }}"
+
+    - name: Apply Flexcellent Deployment
+      ansible.builtin.command: kubectl apply -f k8s/deployment.yaml
+      args:
+        chdir: "{{ repo_root }}"
+
+    - name: Apply Flexcellent Service
+      ansible.builtin.command: kubectl apply -f k8s/service.yaml
+      args:
+        chdir: "{{ repo_root }}"

@@ -35,6 +35,6 @@ ENV RUNNING_IN_DOCKER=1
 ENV SDL_AUDIODRIVER=dummy
 
 # Default command: run the backend app
-CMD ["python", "-m", "backend.main"]
+CMD ["python", "-m", "backend.api"]
 
 
