@@ -17,15 +17,14 @@ pipeline {
         stage('Build & Test') {
             steps {
                 sh '''
-                python -m venv venv
-                . venv/bin/activate
-                pip install --upgrade pip
-                pip install -r requirements.txt
-                pip install pytest
+                python3 -m pip install --upgrade pip
+                python3 -m pip install -r requirements.txt
+                python3 -m pip install pytest
                 pytest
                 '''
             }
         }
+
 
         stage('Docker Build') {
             steps {
