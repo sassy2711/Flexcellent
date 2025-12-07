@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         // Change this to your real Docker Hub repo
-        DOCKER_IMAGE = "yourdockeruser/flexcellent-backend"
+        DOCKER_IMAGE = "sassy2711/flexcellent-backend"
     }
 
     stages {
