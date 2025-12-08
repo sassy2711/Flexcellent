@@ -1,0 +1,89 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: logstash-pipeline
+  namespace: logging
+data:
+  logstash.conf: |
+    input {
+      beats {
+        port => 5044
+      }
+    }
+
+    filter {
+      # Parse Flexcellent JSON logs (your backend logging_setup.py)
+      if [message] =~ "^{\"timestamp\"" {
+        json {
+          source => "message"
+          tag_on_failure => ["_jsonparsefailure"]
+        }
+
+        date {
+          match        => ["timestamp", "ISO8601"]
+          target       => "@timestamp"
+          remove_field => ["timestamp"]
+        }
+      }
+    }
+
+    output {
+      elasticsearch {
+        # Elasticsearch running in K8s (elasticsearch.yaml in namespace logging)
+        hosts => [ "http://elasticsearch.logging.svc.cluster.local:9200" ]
+        index => "flexcellent-logs-%{+YYYY.MM.dd}"
+      }
+
+      stdout {
+        codec => rubydebug
+      }
+    }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: logstash
+  namespace: logging
+  labels:
+    app: logstash
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: logstash
+  template:
+    metadata:
+      labels:
+        app: logstash
+    spec:
+      containers:
+        - name: logstash
+          image: docker.elastic.co/logstash/logstash:8.15.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 5044
+          volumeMounts:
+            - name: pipeline-config
+              mountPath: /usr/share/logstash/pipeline/logstash.conf
+              subPath: logstash.conf
+      volumes:
+        - name: pipeline-config
+          configMap:
+            name: logstash-pipeline
+            items:
+              - key: logstash.conf
+                path: logstash.conf
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: logstash
+  namespace: logging
+spec:
+  selector:
+    app: logstash
+  ports:
+    - name: beats
+      port: 5044
+      targetPort: 5044
+      protocol: TCP
