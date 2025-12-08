@@ -1,3 +1,31 @@
+# ---
+# - name: Deploy Flexcellent backend to Kubernetes
+#   hosts: local
+#   gather_facts: false
+
+#   vars:
+#     repo_root: "{{ playbook_dir | dirname }}"
+
+#   tasks:
+#     - name: Show current kubectl context (for logging)
+#       ansible.builtin.command: kubectl config current-context
+#       register: kubectx
+#       changed_when: false
+
+#     - name: Print kubectl context
+#       ansible.builtin.debug:
+#         msg: "Using kubectl context: {{ kubectx.stdout }}"
+
+#     - name: Apply Flexcellent Deployment
+#       ansible.builtin.command: kubectl apply -f k8s/deployment.yaml
+#       args:
+#         chdir: "{{ repo_root }}"
+
+#     - name: Apply Flexcellent Service
+#       ansible.builtin.command: kubectl apply -f k8s/service.yaml
+#       args:
+#         chdir: "{{ repo_root }}"
+
 ---
 - name: Deploy Flexcellent backend to Kubernetes
   hosts: local
@@ -5,6 +33,11 @@
 
   vars:
     repo_root: "{{ playbook_dir | dirname }}"
+    deployment_name: flexcellent-worker
+    container_name: flexcellent-worker
+    namespace: default
+    docker_image: "{{ lookup('env', 'DOCKER_IMAGE') }}"
+    build_number: "{{ lookup('env', 'BUILD_NUMBER') }}"
 
   tasks:
     - name: Show current kubectl context (for logging)
@@ -23,5 +56,20 @@
 
     - name: Apply Flexcellent Service
       ansible.builtin.command: kubectl apply -f k8s/service.yaml
+      args:
+        chdir: "{{ repo_root }}"
+
+    - name: Update deployment to use current build image
+      ansible.builtin.command: >
+        kubectl set image deployment/{{ deployment_name }}
+        {{ container_name }}={{ docker_image }}:{{ build_number }}
+        -n {{ namespace }}
+      args:
+        chdir: "{{ repo_root }}"
+
+    - name: Wait for rollout to complete
+      ansible.builtin.command: >
+        kubectl rollout status deployment/{{ deployment_name }}
+        -n {{ namespace }} --timeout=120s
       args:
         chdir: "{{ repo_root }}"
