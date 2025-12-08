@@ -64,6 +64,7 @@ pipeline {
         // Docker image name on Docker Hub
         DOCKER_IMAGE   = "sassy2711/flexcellent-backend"
         DOCKERHUB_CREDS = "dockerhub-creds"  // Jenkins credentials ID
+        KUBECONFIG = '/var/lib/jenkins/.kube/config'
     }
 
     stages {
