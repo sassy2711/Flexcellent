@@ -1,3 +1,41 @@
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#   name: flexcellent-worker
+#   labels:
+#     app: flexcellent-worker
+# spec:
+#   replicas: 1
+#   selector:
+#     matchLabels:
+#       app: flexcellent-worker
+#   template:
+#     metadata:
+#       labels:
+#         app: flexcellent-worker
+#     spec:
+#       containers:
+#         - name: flexcellent-worker
+#           image: sassy2711/flexcellent-backend:latest
+#           imagePullPolicy: Always
+#           env:
+#             - name: RUNNING_IN_DOCKER
+#               value: "1"
+#             - name: SDL_AUDIODRIVER
+#               value: "dummy"
+#           ports:
+#             - containerPort: 5000
+
+#           resources:
+#             requests:
+#               cpu: "500m"
+#               memory: "512Mi"
+#             limits:
+#               cpu: "1"
+#               memory: "1Gi"
+#       restartPolicy: Always
+
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -18,13 +56,33 @@ spec:
         - name: flexcellent-worker
           image: sassy2711/flexcellent-backend:latest
           imagePullPolicy: Always
+
           env:
             - name: RUNNING_IN_DOCKER
               value: "1"
             - name: SDL_AUDIODRIVER
               value: "dummy"
+            # optional, but keeps logging path explicit
+            - name: FLEXCELLENT_LOG_DIR
+              value: "/var/log/flexcellent"
+
           ports:
             - containerPort: 5000
+
+          # Probes so Kubernetes knows if the pod is healthy/ready
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 5000
+            initialDelaySeconds: 10
+            periodSeconds: 15
+
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 5000
+            initialDelaySeconds: 5
+            periodSeconds: 10
 
           resources:
             requests:
