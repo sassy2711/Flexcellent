@@ -521,6 +521,8 @@ def analyze_frame():
             "annotated_frame_b64": annotated_frame_b64,
         }
 
+        wrong_joint_names = []
+
         if isSimilar:
             # Pose is within similarity threshold: now check joints
             wrong_joints = PoseSimilarity.get_wrong_joints(
@@ -543,6 +545,7 @@ def analyze_frame():
                     joint_words = " ".join(str(joint_name).split("_"))
                     phrase = f"{change.capitalize()} angle at {joint_words}"
                     speak_phrases.append(phrase)
+                    wrong_joint_names.append(str(joint_name))
 
                     items.append(
                         {
@@ -560,6 +563,17 @@ def analyze_frame():
             # Similarity check failed: overall pose is off
             response["message"] = "Thoda galat."
             response["wrong_joints"] = []
+            wrong_joint_names = []  # overall wrong, but no per-joint details
+
+        # Derive a high-level pose_result category
+        if response["no_pose_detected"]:
+            pose_result = "NO_POSE"
+        elif response["pose_similar"] and len(response["wrong_joints"]) == 0:
+            pose_result = "CORRECT"
+        elif response["pose_similar"] and len(response["wrong_joints"]) > 0:
+            pose_result = "PARTIALLY_CORRECT"
+        else:
+            pose_result = "INCORRECT"
 
         # Final summary log for this frame
         duration_ms = int((time.time() - start) * 1000)
@@ -570,14 +584,17 @@ def analyze_frame():
                 "status_code": 200,
                 "session_id": session_id,
                 "pose_name": pose_name,
+                "pose_result": pose_result,
                 "pose_similar": bool(isSimilar),
                 "no_pose_detected": response["no_pose_detected"],
                 "wrong_joint_count": len(response["wrong_joints"]),
+                "wrong_joint_names": wrong_joint_names,
                 "latency_ms": duration_ms,
             },
         )
 
         return jsonify(response), 200
+
 
     except Exception as e:
         duration_ms = int((time.time() - start) * 1000)
