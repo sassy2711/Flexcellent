@@ -154,7 +154,7 @@ def setup_logging() -> None:
 
     root.setLevel(logging.INFO)
 
-    json_formatter = JsonFormatter()
+    json_formatter = JSONFormatter()
     phi_filter = NoPHIFilter()
 
     # File handler for ELK
