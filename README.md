@@ -18,7 +18,7 @@
 - **OpenCV**: For computer vision tasks like capturing images and processing pose landmarks.
 - **MediaPipe**: To detect pose landmarks from images.
 - **Python**: Backend logic for pose comparison and feedback.
-- **Flutter**: To build a user-friendly cross-platform interface (mobile/desktop).
+- **Flask**: To expose the backend as an api.
 
 ## Setup Instructions
 
